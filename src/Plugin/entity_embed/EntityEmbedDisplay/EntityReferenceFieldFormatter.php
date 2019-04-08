@@ -106,7 +106,7 @@ class EntityReferenceFieldFormatter extends FieldFormatterEntityEmbedDisplayBase
         }
 
         // Only allow this if this is not a content.
-        $entityTypeId = $this->getContextValue('entity_type');
+        $entityTypeId = $this->getEntityTypeFromContext();
         if ($entityTypeId) {
           $definition = $this->entityTypeManager->getDefinition($entityTypeId);
           return $access->andIf(AccessResult::allowedIf(!$definition->entityClassImplements(ContentEntityInterface::class)));
