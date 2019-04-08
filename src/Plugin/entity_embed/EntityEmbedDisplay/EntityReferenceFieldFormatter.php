@@ -84,7 +84,7 @@ class EntityReferenceFieldFormatter extends FieldFormatterEntityEmbedDisplayBase
    * {@inheritdoc}
    */
   public function getFieldValue() {
-    return array('target_id' => $this->getContextValue('entity')->id());
+    return ['target_id' => $this->getContextValue('entity')->id()];
   }
 
   /**

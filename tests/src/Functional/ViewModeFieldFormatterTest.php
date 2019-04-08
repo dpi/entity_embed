@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\entity_embed\Tests;
+namespace Drupal\Tests\entity_embed\Functional;
 
 use Drupal\Core\Form\FormState;
 
@@ -51,6 +51,30 @@ class ViewModeFieldFormatterTest extends EntityEmbedTestBase {
       $view_mode = str_replace('_', '-', end($plugin));
       $this->assertRaw('node--view-mode-' . $view_mode, 'Node rendered in the correct view mode: ' . $view_mode . '.');
     }
+  }
+
+  /**
+   * Tests dependencies on EntityViewMode config entities.
+   */
+  public function testViewModeDependencies() {
+    $button = $this->container
+      ->get('entity_type.manager')
+      ->getStorage('embed_button')
+      ->load('node');
+
+    $config = $button->get('type_settings');
+    $config['display_plugins'] = ['view_mode:node.teaser'];
+    $button->set('type_settings', $config);
+    $button->save();
+    $dependencies = $button->getDependencies();
+    $this->assertContains('core.entity_view_mode.node.teaser', $dependencies['config']);
+
+    // Test that removing teaser view mode removes the dependency.
+    $config['display_plugins'] = ['view_mode:node.full'];
+    $button->set('type_settings', $config);
+    $button->save();
+    $dependencies = $button->getDependencies();
+    $this->assertNotContains('core.entity_view_mode.node.teaser', $dependencies['config']);
   }
 
 }
