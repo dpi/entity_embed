@@ -97,7 +97,8 @@ class EntityReferenceFieldFormatter extends FieldFormatterEntityEmbedDisplayBase
     if ($access->isAllowed()) {
       if ($this->getPluginId() === 'entity_reference:entity_reference_entity_view') {
         // This option disables entity_reference_entity_view plugin for content
-        // entity types. If it is truthy then the plugin is enabled for all entity types.
+        // entity types. If it is truthy then the plugin is enabled for all
+        // entity types.
         $mode = $this->configFactory->get('entity_embed.settings')->get('rendered_entity_mode');
         if ($mode) {
           // Return *allowed* object.
