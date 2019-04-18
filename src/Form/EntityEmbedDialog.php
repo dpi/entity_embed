@@ -3,7 +3,6 @@
 namespace Drupal\entity_embed\Form;
 
 use Drupal\Component\Utility\Html;
-use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\CloseModalDialogCommand;
 use Drupal\Core\Ajax\HtmlCommand;
@@ -772,7 +771,7 @@ class EntityEmbedDialog extends FormBase {
 
       // Filter out empty attributes.
       $values['attributes'] = array_filter($values['attributes'], function ($value) {
-        return (bool) Unicode::strlen((string) $value);
+        return (bool) mb_strlen((string) $value);
       });
 
       // Allow other modules to alter the values before getting submitted to the
