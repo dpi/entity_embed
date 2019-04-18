@@ -121,7 +121,7 @@ class Entity extends EmbedTypeBase implements ContainerFactoryPluginInterface {
       '#title' => $this->t('Entity type'),
       '#options' => $this->getEntityTypeOptions(),
       '#default_value' => $entity_type_id,
-      '#description' => $this->t("Entity type for which this button is to enabled."),
+      '#description' => $this->t("The entity type this button will embed."),
       '#required' => TRUE,
       '#ajax' => [
         'callback' => [$form_state->getFormObject(), 'updateTypeSettings'],
