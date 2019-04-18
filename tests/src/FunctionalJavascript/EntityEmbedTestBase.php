@@ -124,7 +124,7 @@ abstract class EntityEmbedTestBase extends WebDriverTestBase {
   public function assertAvailableDisplayPlugins(EntityInterface $entity, array $expected_plugins, $message = '') {
     $plugin_options = $this->container->get('plugin.manager.entity_embed.display')
       ->getDefinitionOptionsForEntity($entity);
-    $this->assertEqual([], array_diff($expected_plugins, array_keys($plugin_options)), $message);
+    $this->assertEquals([], array_diff($expected_plugins, array_keys($plugin_options)), $message);
   }
 
 }

@@ -65,7 +65,7 @@ class EntityReferenceFieldFormatterTest extends EntityEmbedTestBase {
     $display = $this->container->get('plugin.manager.entity_embed.display')->createInstance('entity_reference:entity_reference_entity_id', []);
     $display->setContextValue('entity', $this->node);
     $conf_form = $display->buildConfigurationForm($form, $form_state);
-    $this->assertIdentical(array_keys($conf_form), []);
+    $this->assertSame([], array_keys($conf_form));
 
     // Ensure that correct form attributes are returned for
     // 'entity_reference:entity_reference_entity_view' plugin.
@@ -74,8 +74,8 @@ class EntityReferenceFieldFormatterTest extends EntityEmbedTestBase {
     $display = $this->container->get('plugin.manager.entity_embed.display')->createInstance('entity_reference:entity_reference_entity_view', []);
     $display->setContextValue('entity', $this->node);
     $conf_form = $display->buildConfigurationForm($form, $form_state);
-    $this->assertIdentical($conf_form['view_mode']['#type'], 'select');
-    $this->assertIdentical((string) $conf_form['view_mode']['#title'], 'View mode');
+    $this->assertSame('select', $conf_form['view_mode']['#type']);
+    $this->assertSame('View mode', (string) $conf_form['view_mode']['#title']);
 
     // Ensure that correct form attributes are returned for
     // 'entity_reference:entity_reference_label' plugin.
@@ -84,9 +84,9 @@ class EntityReferenceFieldFormatterTest extends EntityEmbedTestBase {
     $display = $this->container->get('plugin.manager.entity_embed.display')->createInstance('entity_reference:entity_reference_label', []);
     $display->setContextValue('entity', $this->node);
     $conf_form = $display->buildConfigurationForm($form, $form_state);
-    $this->assertIdentical(array_keys($conf_form), ['link']);
-    $this->assertIdentical($conf_form['link']['#type'], 'checkbox');
-    $this->assertIdentical((string) $conf_form['link']['#title'], 'Link label to the referenced entity');
+    $this->assertSame(['link'], array_keys($conf_form));
+    $this->assertSame('checkbox', $conf_form['link']['#type']);
+    $this->assertSame('Link label to the referenced entity', (string) $conf_form['link']['#title']);
 
     // Ensure that 'Rendered Entity' plugin is not available for an entity not
     // having a view controller.

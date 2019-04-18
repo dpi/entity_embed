@@ -74,7 +74,7 @@ class EntityEmbedUpdateHookTest extends UpdatePathTestBase {
     $this->runUpdates();
     $filter_format = $this->container->get('entity_type.manager')->getStorage('filter_format')->load('full_html');
     $filter_html = $filter_format->filters('filter_html');
-    $this->assertEqual($expected_allowed_html, $filter_html->getConfiguration()['settings']['allowed_html'], 'Allowed html is correct');
+    $this->assertEquals($expected_allowed_html, $filter_html->getConfiguration()['settings']['allowed_html'], 'Allowed html is correct');
   }
 
 }

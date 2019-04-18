@@ -31,7 +31,7 @@ class ViewModeFieldFormatterTest extends EntityEmbedTestBase {
         ->createInstance($plugin, []);
       $display->setContextValue('entity', $this->node);
       $conf_form = $display->buildConfigurationForm($form, $form_state);
-      $this->assertIdentical(array_keys($conf_form), []);
+      $this->assertSame([], array_keys($conf_form));
     }
   }
 

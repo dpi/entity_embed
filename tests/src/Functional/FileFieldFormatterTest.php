@@ -63,8 +63,8 @@ class FileFieldFormatterTest extends EntityEmbedTestBase {
       $display->setContextValue('entity', $this->file);
       $conf_form = $display->buildConfigurationForm($form, $form_state);
       $this->assertArrayHasKey('description', $conf_form);
-      $this->assertIdentical($conf_form['description']['#type'], 'textfield');
-      $this->assertIdentical((string) $conf_form['description']['#title'], 'Description');
+      $this->assertSame('textfield', $conf_form['description']['#type']);
+      $this->assertSame('Description', (string) $conf_form['description']['#title']);
     }
 
     // Test entity embed using 'Generic file' Entity Embed Display plugin.
