@@ -99,11 +99,20 @@ class EntityEmbedBuilder implements EntityEmbedBuilderInterface {
       $context
     );
 
+    if (isset($context['class'])) {
+      if (is_string($context['class'])) {
+        $context['class'] = explode(' ', $context['class']);
+      }
+    }
+    else {
+      $context['class'] = [];
+    }
+    $context['class'][] = 'embedded-entity';
+
     // Maintain data- attributes.
     if (isset($context)) {
       $build['#attributes'] = $context;
     }
-    $build['#attributes']['class'] = isset($build['#attributes']['class']) ? $build['#attributes']['class'] . ' embedded-entity' : 'embedded-entity';
 
     // Make sure that access to the entity is respected.
     $build['#access'] = $entity->access('view', NULL, TRUE);
