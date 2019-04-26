@@ -285,6 +285,35 @@ class EntityEmbedFilterTest extends EntityEmbedTestBase {
     $this->assertSession()->statusCodeEquals(200);
     $this->assertSession()->pageTextContains($translated_host_entity->getTitle());
     $this->assertSession()->pageTextContains($this->node->getTitle());
+
+    // Change the untranslated host entity to explicitly embed the Portuguese
+    // translation of the embedded entity.
+    $host_entity->body->value = '<drupal-entity data-entity-type="node" data-entity-uuid="' . $this->node->uuid() . '" data-entity-embed-display="entity_reference:entity_reference_label" data-entity-embed-settings=\'{"link":"0"}\' data-align="left" data-caption="test caption" data-langcode="pt-br">This placeholder should not be rendered.</drupal-entity>';
+    $host_entity->save();
+    $this->drupalGet('/node/' . $host_entity->id());
+    $this->assertSession()->statusCodeEquals(200);
+    $this->assertSession()->pageTextContains($host_entity->getTitle());
+    $this->assertSession()->pageTextContains($this->node->getTranslation('pt-br')->getTitle());
+
+    // Change the untranslated host entity to explicitly embed a non-existing
+    // translation of the embedded entity; this should fall back to the default
+    // translation.
+    $host_entity->body->value = '<drupal-entity data-entity-type="node" data-entity-uuid="' . $this->node->uuid() . '" data-entity-embed-display="entity_reference:entity_reference_label" data-entity-embed-settings=\'{"link":"0"}\' data-align="left" data-caption="test caption" data-langcode="nl">This placeholder should not be rendered.</drupal-entity>';
+    $host_entity->save();
+    $this->getSession()->reload();
+    $this->assertSession()->statusCodeEquals(200);
+    $this->assertSession()->pageTextContains($host_entity->getTitle());
+    $this->assertSession()->pageTextContains($this->node->getTitle());
+
+    // Change the translated host entity to explicitly embed a non-existing
+    // translation of the embedded entity; this should fall back to the default
+    // translation.
+    $translated_host_entity->body->value = '<drupal-entity data-entity-type="node" data-entity-uuid="' . $this->node->uuid() . '" data-entity-embed-display="entity_reference:entity_reference_label" data-entity-embed-settings=\'{"link":"0"}\' data-align="left" data-caption="test caption" data-langcode="nl">This placeholder should not be rendered.</drupal-entity>';
+    $translated_host_entity->save();
+    $this->drupalGet('/pt-br/node/' . $host_entity->id());
+    $this->assertSession()->statusCodeEquals(200);
+    $this->assertSession()->pageTextContains($translated_host_entity->getTitle());
+    $this->assertSession()->pageTextContains($this->node->getTitle());
   }
 
 }
