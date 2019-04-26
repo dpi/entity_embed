@@ -6,6 +6,7 @@ namespace Drupal\Tests\entity_embed\FunctionalJavascript;
  * Tests the entity_embed dialog controller and route.
  *
  * @group entity_embed
+ * @requires function Drupal\FunctionalJavascriptTests\WebDriverTestBase::assertSession
  */
 class EntityEmbedDialogTest extends EntityEmbedTestBase {
 
