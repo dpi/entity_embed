@@ -137,7 +137,8 @@ class EntityEmbedFilterTest extends EntityEmbedTestBase {
     $this->drupalGet('node/' . $node->id());
     $this->assertText($this->node->body->value, 'Embedded node exists in page with the view mode specified by entity-embed-settings.');
     $this->assertNoText(strip_tags($content), 'Placeholder does not appear in the output when embed is successful.');
-    $this->assertRaw('<div data-entity-type="node" data-entity-uuid="' . $this->node->uuid() . '" data-entity-embed-display="entity_reference:entity_reference_entity_view" data-entity-embed-display-settings="full" data-view-mode="some-invalid-view-mode" data-align="left" data-caption="test caption" data-langcode="en" class="embedded-entity">');
+    $this->assertSession()->elementExists('css', 'figure.caption-drupal-entity.align-left div.embedded-entity[data-entity-embed-display="entity_reference:entity_reference_entity_view"][data-entity-embed-display-settings="full"][data-entity-type="node"][data-entity-uuid="' . $this->node->uuid() . '"][data-view-mode="some-invalid-view-mode"][data-langcode="en"]');
+    $this->assertSession()->elementTextContains('css', 'figure.caption-drupal-entity.align-left figcaption', 'test caption');
 
     // Ensure the embedded node doesn't contain data tags on the full page.
     $this->drupalGet('node/' . $this->node->id());
@@ -177,12 +178,8 @@ class EntityEmbedFilterTest extends EntityEmbedTestBase {
     $settings['body'] = [['value' => $content, 'format' => 'custom_format']];
     $node = $this->drupalCreateNode($settings);
     $this->drupalget('node/' . $node->id());
-    $this->assertRaw('<img src', 'IMG tag found.');
-    $this->assertRaw('data-caption="test caption"', 'Caption found.');
-    $this->assertRaw('data-align="left"', 'Alignment information found.');
-    $this->assertTrue((bool) $this->xpath("//img[@alt='This is alt text']"), 'Alt text found');
-    $this->assertTrue((bool) $this->xpath("//img[@title='This is title text']"), 'Title text found');
-    $this->assertRaw('<div data-entity-type="file" data-entity-uuid="' . $image->uuid() . '" data-entity-embed-display="image:image" data-align="left" data-caption="test caption" alt="This is alt text" title="This is title text" data-langcode="en" class="embedded-entity">');
+    $this->assertSession()->elementExists('css', 'figure.caption-drupal-entity.align-left div.embedded-entity[alt="This is alt text"][data-entity-embed-display="image:image"][data-entity-type="file"][data-entity-uuid="' . $image->uuid() . '"][title="This is title text"][data-langcode="en"] img[src][alt="This is alt text"][title="This is title text"]');
+    $this->assertSession()->elementTextContains('css', 'figure.caption-drupal-entity.align-left figcaption', 'test caption');
 
     // data-entity-embed-settings is replaced with
     // data-entity-embed-display-settings. Check to see if
@@ -194,11 +191,9 @@ class EntityEmbedFilterTest extends EntityEmbedTestBase {
     $settings['body'] = [['value' => $content, 'format' => 'custom_format']];
     $node = $this->drupalCreateNode($settings);
     $this->drupalGet('node/' . $node->id());
-    $this->assertText($this->node->getTitle(), 'Embeded node title is displayed.');
-    $this->assertNoLink($this->node->getTitle(), 'Embed settings are respected.');
-    $this->assertNoText($this->node->body->value, 'Embedded node exists in page.');
-    $this->assertNoText(strip_tags($content), 'Placeholder does not appear in the output when embed is successful.');
-    $this->assertRaw('<div data-entity-type="node" data-entity-uuid="' . $this->node->uuid() . '" data-entity-embed-display="entity_reference:entity_reference_label" data-align="left" data-caption="test caption" data-langcode="en" class="embedded-entity">');
+    $this->assertSession()->elementExists('css', 'figure.caption-drupal-entity.align-left div.embedded-entity[data-entity-embed-display="entity_reference:entity_reference_label"][data-entity-type="node"][data-entity-uuid="' . $this->node->uuid() . '"][data-langcode="en"]');
+    $this->assertSession()->elementTextContains('css', 'figure.caption-drupal-entity.align-left div.embedded-entity', 'Embed Test Node');
+    $this->assertSession()->elementTextContains('css', 'figure.caption-drupal-entity.align-left figcaption', 'test caption');
 
     // Tests entity embed using custom attribute and custom data- attribute.
     $content = '<drupal-entity data-foo="bar" foo="bar" data-entity-type="node" data-entity-uuid="' . $this->node->uuid() . '" data-view-mode="teaser">This placeholder should not be rendered.</drupal-entity>';

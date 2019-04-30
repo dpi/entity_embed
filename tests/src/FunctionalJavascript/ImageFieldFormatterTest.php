@@ -160,19 +160,8 @@ class ImageFieldFormatterTest extends WebDriverTestBase {
     $imageButton->dragTo($target);
     $page = $this->getSession()->getPage();
 
-    // Currently there is a bug where you must enable filter_align and caption
-    // and have them in a certain order.
-    // See https://www.drupal.org/project/entity_embed/issues/2752253
     $page->checkField('filters[entity_embed][status]');
-    $page->checkField('filters[filter_align][status]');
-    $page->checkField('filters[filter_caption][status]');
     $page->checkField('filters[filter_html][status]');
-    $this->assertSession()->buttonExists('Show row weights')->press();
-    // Currently there is a bug where you must enable filter_align and caption
-    // and have them in a certain order.
-    $page->selectFieldOption('filters[entity_embed][weight]', '0');
-    $page->selectFieldOption('filters[filter_caption][weight]', '1');
-    $page->selectFieldOption('filters[filter_align][weight]', '2');
     $this->assertSession()->buttonExists('Save configuration')->press();
     $this->assertSession()->responseContains('The text format <em class="placeholder">Embed format</em> has been updated.');
 

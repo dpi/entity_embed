@@ -115,20 +115,40 @@ function entity_embed_filter_format_edit_form_validate($form, FormStateInterface
     return (string) $form['filters']['order'][$filter_plugin_id]['filter']['#markup'];
   };
 
-  // Ensure the "entity_embed" filter is set to run before "filter_align" and
-  // "filter_caption".
-  if (isset($filters['entity_embed']['weight'])) {
-    if (isset($filters['filter_align']['weight']) && $filters['filter_align']['weight'] <= $filters['entity_embed']['weight']) {
-      $form_state->setErrorByName('filters', t('The %entity-embed-filter-label filter needs to be placed before the %align-filter-label filter.', [
-        '%entity-embed-filter-label' => $get_filter_label('entity_embed'),
-        '%align-filter-label' => $get_filter_label('filter_align'),
-      ]));
+  // The "entity_embed" filter must run after "filter_align", "filter_caption",
+  // and "filter_html_image_secure".
+  if (!empty($filters['entity_embed']['status'])) {
+    $precedents = [
+      'filter_align',
+      'filter_caption',
+      'filter_html_image_secure',
+    ];
+
+    $error_filters = [];
+    foreach ($precedents as $filter_name) {
+
+      // A filter that should run before entity embed filter.
+      $precedent = $filters[$filter_name];
+
+      if (empty($precedent['status']) || !isset($precedent['weight'])) {
+        continue;
+      }
+
+      if ($precedent['weight'] >= $filters['entity_embed']['weight']) {
+        $error_filters[$filter_name] = $get_filter_label($filter_name);
+      }
     }
-    if (isset($filters['filter_caption']['weight']) && $filters['filter_caption']['weight'] <= $filters['entity_embed']['weight']) {
-      $form_state->setErrorByName('filters', t('The %entity-embed-filter-label filter needs to be placed before the %caption-filter-label filter.', [
+
+    if (!empty($error_filters)) {
+      $singular = 'The %entity-embed-filter-label filter needs to be placed after the %filter filter.';
+      $plural = 'The %entity-embed-filter-label filter needs to be placed after the following filters: %filters.';
+      $error_message = \Drupal::translation()->formatPlural(count($error_filters), $singular, $plural, [
         '%entity-embed-filter-label' => $get_filter_label('entity_embed'),
-        '%caption-filter-label' => $get_filter_label('filter_caption'),
-      ]));
+        '%filter' => reset($error_filters),
+        '%filters' => implode(', ', $error_filters),
+      ]);
+
+      $form_state->setErrorByName('filters', $error_message);
     }
   }
 }

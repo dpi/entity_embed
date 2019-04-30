@@ -56,6 +56,15 @@ abstract class EntityEmbedTestBase extends BrowserTestBase {
       'format' => 'custom_format',
       'name' => 'Custom format',
       'filters' => [
+        'filter_align' => [
+          'status' => 1,
+        ],
+        'filter_caption' => [
+          'status' => 1,
+        ],
+        'filter_html_image_secure' => [
+          'status' => 1,
+        ],
         'entity_embed' => [
           'status' => 1,
         ],

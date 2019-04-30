@@ -22,8 +22,9 @@ use Drupal\embed\DomHelperTrait;
  * @Filter(
  *   id = "entity_embed",
  *   title = @Translation("Display embedded entities"),
- *   description = @Translation("Embeds entities using data attributes: data-entity-type, data-entity-uuid, and data-view-mode. If used in conjunction with the 'Align/Caption' filters, make sure this filter is configured to run before them."),
- *   type = Drupal\filter\Plugin\FilterInterface::TYPE_TRANSFORM_REVERSIBLE
+ *   description = @Translation("Embeds entities using data attributes: data-entity-type, data-entity-uuid, and data-view-mode. Should usually run as the last filter, since it does not contain user input."),
+ *   type = Drupal\filter\Plugin\FilterInterface::TYPE_TRANSFORM_REVERSIBLE,
+ *   weight = 100,
  * )
  */
 class EntityEmbedFilter extends FilterBase implements ContainerFactoryPluginInterface {
