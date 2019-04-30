@@ -776,7 +776,7 @@ class EntityEmbedDialog extends FormBase {
 
       // Allow other modules to alter the values before getting submitted to the
       // WYSIWYG.
-      $this->moduleHandler->alter('entity_embed_values', $values, $entity, $display, $form_state);
+      $this->moduleHandler->alter('entity_embed_values', $values, $entity, $display);
 
       $response->addCommand(new EditorDialogSave($values));
       $response->addCommand(new CloseModalDialogCommand());
