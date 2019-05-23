@@ -529,8 +529,10 @@ class EntityEmbedDialog extends FormBase {
    *   The current state of the form.
    */
   public function validateSelectStep(array $form, FormStateInterface $form_state) {
-    if (($form_state->hasValue(['entity_browser', 'entities'])) && (count($form_state->getValue(['entity_browser', 'entities'])) > 0)) {
-      $id = $form_state->getValue(['entity_browser', 'entities', 0])->id();
+    if ($form_state->hasValue(['entity_browser', 'entities'])) {
+      if (count($form_state->getValue(['entity_browser', 'entities'])) > 0) {
+        $id = $form_state->getValue(['entity_browser', 'entities', 0])->id();
+      }
       $element = $form['entity_browser'];
     }
     else {
@@ -540,6 +542,10 @@ class EntityEmbedDialog extends FormBase {
 
     $entity_type = $form_state->getValue(['attributes', 'data-entity-type']);
 
+    if (!isset($id)) {
+      $form_state->setError($element, $this->t('No entity selected.'));
+      return;
+    }
     if ($entity = $this->entityTypeManager->getStorage($entity_type)->load($id)) {
       if (!$entity->access('view')) {
         $form_state->setError($element, $this->t('Unable to access @type entity @id.', ['@type' => $entity_type, '@id' => $id]));
