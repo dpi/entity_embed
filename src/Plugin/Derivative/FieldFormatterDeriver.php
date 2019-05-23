@@ -65,17 +65,9 @@ class FieldFormatterDeriver extends DeriverBase implements ContainerDeriverInter
     if (!isset($base_plugin_definition['field_type'])) {
       throw new \LogicException("Undefined field_type definition in plugin {$base_plugin_definition['id']}.");
     }
-    $mode = $this->configFactory->get('entity_embed.settings')->get('rendered_entity_mode');
     foreach ($this->formatterManager->getOptions($base_plugin_definition['field_type']) as $formatter => $label) {
       $this->derivatives[$formatter] = $base_plugin_definition;
       $this->derivatives[$formatter]['label'] = $label;
-      // Don't show entity_reference_entity_view in the UI if the rendered
-      // entity mode is FALSE. In that case we show view modes from
-      // ViewModeDeriver, entity_reference_entity_view is kept for backwards
-      // compatibility.
-      if ($formatter == 'entity_reference_entity_view' && $mode == FALSE) {
-        $this->derivatives[$formatter]['no_ui'] = TRUE;
-      }
     }
     return $this->derivatives;
   }
