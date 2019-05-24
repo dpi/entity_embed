@@ -575,7 +575,7 @@ class EntityEmbedDialog extends FormBase {
         // If no plugin is available after taking the intersection, raise error.
         // Also log an exception.
         if (empty($display_plugin_options)) {
-          $form_state->setError($element, $this->t('No display options available for the selected entity. Please select another entity.'));
+          $form_state->setError($element, $this->t('No display options available for the selected %entity-type. Please select another %entity_type.', ['%entity_type' => $entity->getEntityType()->getLabel()]));
           $this->logger('entity_embed')->warning('No display options available for "@type:" entity "@id" while embedding using button "@button". Please ensure that at least one Entity Embed Display plugin is allowed for this embed button which is available for this entity.', [
             '@type' => $entity_type,
             '@id' => $entity->id(),
@@ -825,13 +825,12 @@ class EntityEmbedDialog extends FormBase {
    *   List of allowed Entity Embed Display plugins.
    */
   public function getDisplayPluginOptions(EmbedButtonInterface $embed_button, EntityInterface $entity) {
-    $plugins = $this->entityEmbedDisplayManager->getDefinitionOptionsForEntity($entity);
+    $plugins = $this->entityEmbedDisplayManager->getDefinitionOptionsForContext([
+      'entity' => $entity,
+      'entity_type' => $entity->getEntityTypeId(),
+      'embed_button' => $embed_button,
+    ]);
 
-    if ($allowed_plugins = $embed_button->getTypeSetting('display_plugins')) {
-      $plugins = array_intersect_key($plugins, array_flip($allowed_plugins));
-    }
-
-    natsort($plugins);
     return $plugins;
   }
 
