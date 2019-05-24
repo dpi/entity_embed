@@ -2,7 +2,6 @@
 
 namespace Drupal\Tests\entity_embed\FunctionalJavascript;
 
-use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
 use Drupal\editor\Entity\Editor;
 use Drupal\filter\Entity\FilterFormat;
 
@@ -11,7 +10,7 @@ use Drupal\filter\Entity\FilterFormat;
  *
  * @group entity_embed
  */
-class CKEditorIntegrationTest extends WebDriverTestBase {
+class CKEditorIntegrationTest extends EntityEmbedTestBase {
 
   /**
    * {@inheritdoc}
@@ -233,20 +232,6 @@ class CKEditorIntegrationTest extends WebDriverTestBase {
     $this->assertSession()->buttonExists('Save')->press();
     // Verify that the embedded entity is rendered by the filter for end users.
     $this->assertSession()->responseContains('Long John Silver');
-  }
-
-  /**
-   * Assigns a name to the CKEditor iframe, to allow use of ::switchToIFrame().
-   *
-   * @see \Behat\Mink\Session::switchToIFrame()
-   */
-  protected function assignNameToCkeditorIframe() {
-    $javascript = <<<JS
-(function(){
-  document.getElementsByClassName('cke_wysiwyg_frame')[0].id = 'ckeditor';
-})()
-JS;
-    $this->getSession()->evaluateScript($javascript);
   }
 
 }

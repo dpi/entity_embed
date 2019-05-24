@@ -27,7 +27,7 @@ Entity Embed can be installed via the
   * If the text format uses the 'Limit allowed HTML tags and correct
     faulty HTML' filter, ensure the necessary tags and attributes were
     automatically whitelisted:
-    ```<drupal-entity data-entity-type data-entity-uuid data-view-mode data-entity-embed-display data-entity-embed-display-settings data-align data-caption data-embed-button alt title>```
+    ```<drupal-entity data-entity-type data-entity-uuid data-view-mode data-entity-embed-display data-entity-embed-display-settings data-align data-caption data-embed-button data-langcode alt title>```
     appears in the 'Allowed HTML tags' setting.
     *Warning: If you were using the module in very early pre-alpha
     stages you might need to add `data-entity-id` to the list of allowed

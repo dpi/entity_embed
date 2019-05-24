@@ -37,6 +37,13 @@
           var existingElement = getSelectedEmbeddedEntity(editor);
 
           var existingValues = {};
+
+          // Host entity's langcode added in entity_embed_field_widget_form_alter().
+          var hostEntityLangcode = document.getElementById(editor.name).getAttribute('data-entity_embed-host-entity-langcode');
+          if (hostEntityLangcode) {
+            existingValues['data-langcode'] = hostEntityLangcode;
+          }
+
           if (existingElement && existingElement.$ && existingElement.$.firstChild) {
             var embedDOMElement = existingElement.$.firstChild;
             // Populate array with the entity's current attributes.
@@ -135,7 +142,7 @@
           editor.ui.addButton(button.id, {
             label: button.label,
             data: button,
-            allowedContent: 'drupal-entity[!data-entity-type,!data-entity-uuid,!data-entity-embed-display,!data-entity-embed-display-settings,!data-align,!data-caption,!data-embed-button,!alt,!title]',
+            allowedContent: 'drupal-entity[!data-entity-type,!data-entity-uuid,!data-entity-embed-display,!data-entity-embed-display-settings,!data-align,!data-caption,!data-embed-button,!data-langcode,!alt,!title]',
             click: function(editor) {
               editor.execCommand('editdrupalentity', this.data);
             },

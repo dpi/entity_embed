@@ -173,7 +173,7 @@ class ImageFieldFormatterTest extends WebDriverTestBase {
     $settings = $filterFormat->filters('filter_html')->settings;
     $allowed_html = $settings['allowed_html'];
 
-    $this->assertContains('drupal-entity data-entity-type data-entity-uuid data-entity-embed-display data-entity-embed-display-settings data-align data-caption data-embed-button alt title', $allowed_html);
+    $this->assertContains('drupal-entity data-entity-type data-entity-uuid data-entity-embed-display data-entity-embed-display-settings data-align data-caption data-embed-button data-langcode alt title', $allowed_html);
 
     $this->drupalGet('/node/add/page');
     $this->assertSession()->waitForElement('css', 'a.cke_button__' . $this->button->id())->click();

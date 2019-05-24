@@ -2,6 +2,9 @@
 
 namespace Drupal\Tests\entity_embed\FunctionalJavascript;
 
+use Drupal\editor\Entity\Editor;
+use Drupal\filter\Entity\FilterFormat;
+
 /**
  * Tests the entity_embed dialog controller and route.
  *
@@ -16,6 +19,77 @@ class EntityEmbedDialogTest extends EntityEmbedTestBase {
    * @var array
    */
   public static $modules = ['image'];
+
+  /**
+   * The test user.
+   *
+   * @var \Drupal\user\UserInterface
+   */
+  protected $webUser;
+
+  /**
+   * A test node to be used for embedding.
+   *
+   * @var \Drupal\node\NodeInterface
+   */
+  protected $node;
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function setUp() {
+    parent::setUp();
+
+    // Create a page content type.
+    $this->drupalCreateContentType(['type' => 'page', 'name' => 'Basic page']);
+
+    // Create a text format and enable the entity_embed filter.
+    $format = FilterFormat::create([
+      'format' => 'custom_format',
+      'name' => 'Custom format',
+      'filters' => [
+        'entity_embed' => [
+          'status' => 1,
+        ],
+      ],
+    ]);
+    $format->save();
+
+    $editor_group = [
+      'name' => 'Entity Embed',
+      'items' => [
+        'node',
+      ],
+    ];
+    $editor = Editor::create([
+      'format' => 'custom_format',
+      'editor' => 'ckeditor',
+      'settings' => [
+        'toolbar' => [
+          'rows' => [[$editor_group]],
+        ],
+      ],
+    ]);
+    $editor->save();
+
+    // Create a user with required permissions.
+    $this->webUser = $this->drupalCreateUser([
+      'access content',
+      'create page content',
+      'use text format custom_format',
+    ]);
+    $this->drupalLogin($this->webUser);
+
+    // Create a sample node to be embedded.
+    $settings = [];
+    $settings['type'] = 'page';
+    $settings['title'] = 'Embed Test Node';
+    $settings['body'] = [
+      'value' => 'This node is to be used for embedding in other nodes.',
+      'format' => 'custom_format',
+    ];
+    $this->node = $this->drupalCreateNode($settings);
+  }
 
   /**
    * Tests the entity embed button markup.
@@ -67,28 +141,6 @@ class EntityEmbedDialogTest extends EntityEmbedTestBase {
     foreach ($plugins as $plugin) {
       $this->assertSession()->optionExists('Display as', $plugin);
     }
-  }
-
-  /**
-   * Retrieves an embed dialog based on given parameters.
-   *
-   * @param string $filter_format_id
-   *   ID of the filter format.
-   * @param string $embed_button_id
-   *   ID of the embed button.
-   *
-   * @return string
-   *   The retrieved HTML string.
-   */
-  public function getEmbedDialog($filter_format_id = NULL, $embed_button_id = NULL) {
-    $url = 'entity-embed/dialog';
-    if (!empty($filter_format_id)) {
-      $url .= '/' . $filter_format_id;
-      if (!empty($embed_button_id)) {
-        $url .= '/' . $embed_button_id;
-      }
-    }
-    return $this->drupalGet($url);
   }
 
 }

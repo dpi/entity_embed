@@ -2,6 +2,7 @@
 
 namespace Drupal\entity_embed\Form;
 
+use Drupal\Component\Assertion\Inspector;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\CloseModalDialogCommand;
@@ -10,6 +11,7 @@ use Drupal\Core\Ajax\SetDialogTitleCommand;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\TranslatableInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormBuilderInterface;
@@ -120,7 +122,8 @@ class EntityEmbedDialog extends FormBase {
       $container->get('entity_type.manager'),
       $container->get('event_dispatcher'),
       $container->get('entity_field.manager'),
-      $container->get('module_handler')
+      $container->get('module_handler'),
+      $container->get('language_manager')
     );
   }
 
@@ -129,6 +132,29 @@ class EntityEmbedDialog extends FormBase {
    */
   public function getFormId() {
     return 'entity_embed_dialog';
+  }
+
+  /**
+   * Loads an entity (in the appropriate translation) given HTML attributes.
+   *
+   * @param string[] $attributes
+   *   An array of HTML attributes, including at least `data-entity-type` and
+   *   `data-entity-uuid`, and optionally `data-langcode`.
+   *
+   * @return \Drupal\Core\Entity\EntityInterface|null
+   *   The requested entity, or NULL.
+   */
+  protected function loadEntityByAttributes(array $attributes) {
+    $entity = $this->entityTypeManager->getStorage($attributes['data-entity-type'])
+      ->loadByProperties(['uuid' => $attributes['data-entity-uuid']]);
+    $entity = current($entity);
+    if ($entity && $entity instanceof TranslatableInterface && !empty($attributes['data-langcode'])) {
+      if ($entity->hasTranslation($attributes['data-langcode'])) {
+        $entity = $entity->getTranslation($attributes['data-langcode']);
+      }
+    }
+
+    return $entity;
   }
 
   /**
@@ -166,9 +192,8 @@ class EntityEmbedDialog extends FormBase {
       'data-entity-embed-display-settings' => isset($form_state->get('entity_element')['data-entity-embed-settings']) ? $form_state->get('entity_element')['data-entity-embed-settings'] : [],
     ];
     $form_state->set('entity_element', $entity_element);
-    $entity = $this->entityTypeManager->getStorage($entity_element['data-entity-type'])
-      ->loadByProperties(['uuid' => $entity_element['data-entity-uuid']]);
-    $form_state->set('entity', current($entity) ?: NULL);
+    $entity = $this->loadEntityByAttributes($entity_element);
+    $form_state->set('entity', $entity ?: NULL);
 
     if (!$form_state->get('step')) {
       // If an entity has been selected, then always skip to the embed options.
@@ -263,6 +288,13 @@ class EntityEmbedDialog extends FormBase {
       if ($bundles = $embed_button->getTypeSetting('bundles')) {
         $form['entity_id']['#selection_settings']['target_bundles'] = $bundles;
       }
+    }
+
+    if (!empty($entity_element['data-langcode'])) {
+      $form['attributes']['data-langcode'] = [
+        '#type' => 'hidden',
+        '#value' => $entity_element['data-langcode']
+      ];
     }
 
     $form['attributes']['data-entity-uuid'] = [
@@ -407,6 +439,13 @@ class EntityEmbedDialog extends FormBase {
       '#type' => 'hidden',
       '#value' => $entity_element['data-entity-uuid'],
     ];
+
+    if (!empty($entity_element['data-langcode'])) {
+      $form['attributes']['data-langcode'] = [
+        '#type' => 'hidden',
+        '#value' => $entity_element['data-langcode']
+      ];
+    }
 
     // Build the list of allowed Entity Embed Display plugins.
     $display_plugin_options = $this->getDisplayPluginOptions($embed_button, $entity);
@@ -600,9 +639,7 @@ class EntityEmbedDialog extends FormBase {
   public function validateEmbedStep(array $form, FormStateInterface $form_state) {
     // Validate configuration forms for the Entity Embed Display plugin used.
     $entity_element = $form_state->getValue('attributes');
-    $entity = $this->entityTypeManager->getStorage($entity_element['data-entity-type'])
-      ->loadByProperties(['uuid' => $entity_element['data-entity-uuid']]);
-    $entity = current($entity) ?: NULL;
+    $entity = $form_state->get('entity');
     $plugin_id = $entity_element['data-entity-embed-display'];
     $plugin_settings = !empty($entity_element['data-entity-embed-display-settings']) ? $entity_element['data-entity-embed-display-settings'] : [];
     $display = $this->entityEmbedDisplayManager->createInstance($plugin_id, $plugin_settings);
@@ -759,9 +796,7 @@ class EntityEmbedDialog extends FormBase {
 
     // Submit configuration form the selected Entity Embed Display plugin.
     $entity_element = $form_state->getValue('attributes');
-    $entity = $this->entityTypeManager->getStorage($entity_element['data-entity-type'])
-      ->loadByProperties(['uuid' => $entity_element['data-entity-uuid']]);
-    $entity = current($entity);
+    $entity = $this->loadEntityByAttributes($entity_element);
     $plugin_id = $entity_element['data-entity-embed-display'];
     $plugin_settings = !empty($entity_element['data-entity-embed-display-settings']) ? $entity_element['data-entity-embed-display-settings'] : [];
     $display = $this->entityEmbedDisplayManager->createInstance($plugin_id, $plugin_settings);
