@@ -44,10 +44,10 @@ class EntityEmbedFilterTest extends EntityEmbedTestBase {
     $settings['body'] = [['value' => $content, 'format' => 'custom_format']];
     $node = $this->drupalCreateNode($settings);
     $this->drupalGet('node/' . $node->id());
-    $this->assertNoRaw('<drupal-entity data-entity-type="node" data-entity');
-    $this->assertText($this->node->body->value, 'Embedded node exists in page');
-    $this->assertNoText(strip_tags($content), 'Placeholder does not appear in the output when embed is successful.');
-    $this->assertRaw('<div data-entity-type="node" data-entity-id="1" data-view-mode="teaser" data-entity-uuid="' . $this->node->uuid() . '" data-langcode="en" data-entity-embed-display="entity_reference:entity_reference_entity_view" data-entity-embed-display-settings="teaser" class="embedded-entity">');
+    $this->assertSession()->responseNotContains('<drupal-entity data-entity-type="node" data-entity');
+    $this->assertSession()->responseContains($this->node->body->value);
+    $this->assertSession()->responseNotContains('This placeholder should not be rendered.');
+    $this->assertSession()->responseContains('<div data-entity-type="node" data-entity-id="1" data-view-mode="teaser" data-entity-uuid="' . $this->node->uuid() . '" data-langcode="en" data-entity-embed-display="entity_reference:entity_reference_entity_view" data-entity-embed-display-settings="teaser" class="embedded-entity">');
 
     // Tests that embedded entity is not rendered if not accessible.
     $this->node->setPublished(FALSE)->save();
@@ -57,19 +57,21 @@ class EntityEmbedFilterTest extends EntityEmbedTestBase {
     $settings['body'] = [['value' => $content, 'format' => 'custom_format']];
     $node = $this->drupalCreateNode($settings);
     $this->drupalGet('node/' . $node->id());
-    $this->assertNoRaw('<drupal-entity data-entity-type="node" data-entity');
-    $this->assertNoText($this->node->body->value, 'Embedded node does not exist in the page.');
-    $this->assertNoText(strip_tags($content), 'Placeholder does not appear in the output when embed is successful.');
-    // Tests that embedded entity is displayed to the user who has the view
-    // unpublished content permission.
+    $this->assertSession()->responseNotContains('<drupal-entity data-entity-type="node" data-entity');
+    $this->assertSession()->responseNotContains($this->node->body->value);
+    // Verify placeholder does not appear in the output when embed is
+    // successful.
+    $this->assertSession()->responseNotContains(strip_tags($content));
+    // Tests that embedded entity is displayed to the user who has
+    // the view unpublished content permission.
     $this->createRole(['view own unpublished content'], 'access_unpublished');
     $this->webUser->addRole('access_unpublished');
     $this->webUser->save();
     $this->drupalGet('node/' . $node->id());
-    $this->assertNoRaw('<drupal-entity data-entity-type="node" data-entity');
-    $this->assertText($this->node->body->value, 'Embedded node exists in the page.');
-    $this->assertNoText(strip_tags($content), 'Placeholder does not appear in the output when embed is successful.');
-    $this->assertRaw('<div data-entity-type="node" data-entity-id="1" data-view-mode="teaser" data-entity-uuid="' . $this->node->uuid() . '" data-langcode="en" data-entity-embed-display="entity_reference:entity_reference_entity_view" data-entity-embed-display-settings="teaser" class="embedded-entity">');
+    $this->assertSession()->responseNotContains('<drupal-entity data-entity-type="node" data-entity');
+    $this->assertSession()->responseContains($this->node->body->value);
+    $this->assertSession()->responseNotContains('This placeholder should not be rendered.');
+    $this->assertSession()->responseContains('<div data-entity-type="node" data-entity-id="1" data-view-mode="teaser" data-entity-uuid="' . $this->node->uuid() . '" data-langcode="en" data-entity-embed-display="entity_reference:entity_reference_entity_view" data-entity-embed-display-settings="teaser" class="embedded-entity">');
     $this->webUser->removeRole('access_unpublished');
     $this->webUser->save();
     $this->node->setPublished(TRUE)->save();
@@ -82,11 +84,11 @@ class EntityEmbedFilterTest extends EntityEmbedTestBase {
     $settings['body'] = [['value' => $content, 'format' => 'custom_format']];
     $node = $this->drupalCreateNode($settings);
     $this->drupalGet('node/' . $node->id());
-    $this->assertNoRaw('<drupal-entity data-entity-type="node" data-entity');
-    $this->assertText($this->node->body->value, 'Embedded node exists in page.');
-    $this->assertNoText(strip_tags($content), 'Placeholder does not appear in the output when embed is successful.');
-    $this->assertRaw('<div data-entity-type="node" data-entity-uuid="' . $this->node->uuid() . '" data-view-mode="teaser" data-langcode="en" data-entity-embed-display="entity_reference:entity_reference_entity_view" data-entity-embed-display-settings="teaser" class="embedded-entity">');
-    $this->assertCacheTag('foo:' . $this->node->id());
+    $this->assertSession()->responseNotContains('<drupal-entity data-entity-type="node" data-entity');
+    $this->assertSession()->responseContains($this->node->body->value);
+    $this->assertSession()->responseNotContains('This placeholder should not be rendered.');
+    $this->assertSession()->responseContains('<div data-entity-type="node" data-entity-uuid="' . $this->node->uuid() . '" data-view-mode="teaser" data-langcode="en" data-entity-embed-display="entity_reference:entity_reference_entity_view" data-entity-embed-display-settings="teaser" class="embedded-entity">');
+    $this->assertSession()->responseHeaderContains('X-Drupal-Cache-Tags', 'foo:' . $this->node->id());
 
     // Ensure that placeholder is not replaced when embed is unsuccessful.
     $content = '<drupal-entity data-entity-type="node" data-entity-id="InvalidID" data-view-mode="teaser">This placeholder should be rendered since specified entity does not exists.</drupal-entity>';
@@ -96,8 +98,8 @@ class EntityEmbedFilterTest extends EntityEmbedTestBase {
     $settings['body'] = [['value' => $content, 'format' => 'custom_format']];
     $node = $this->drupalCreateNode($settings);
     $this->drupalGet('node/' . $node->id());
-    $this->assertNoRaw('<drupal-entity data-entity-type="node" data-entity');
-    $this->assertNoText(strip_tags($content), 'Placeholder does not appear in the output when embed is unsuccessful.');
+    $this->assertSession()->responseNotContains('<drupal-entity data-entity-type="node" data-entity');
+    $this->assertSession()->responseNotContains('This placeholder should not be rendered.');
 
     // Ensure that UUID is preferred over ID when both attributes are present.
     $sample_node = $this->drupalCreateNode();
@@ -108,11 +110,11 @@ class EntityEmbedFilterTest extends EntityEmbedTestBase {
     $settings['body'] = [['value' => $content, 'format' => 'custom_format']];
     $node = $this->drupalCreateNode($settings);
     $this->drupalGet('node/' . $node->id());
-    $this->assertNoRaw('<drupal-entity data-entity-type="node" data-entity');
-    $this->assertText($this->node->body->value, 'Entity specifed with UUID exists in the page.');
-    $this->assertNoText($sample_node->body->value, 'Entity specifed with ID does not exists in the page.');
-    $this->assertNoText(strip_tags($content), 'Placeholder does not appear in the output when embed is successful.');
-    $this->assertRaw('<div data-entity-type="node" data-entity-id="' . $sample_node->id() . '" data-entity-uuid="' . $this->node->uuid() . '" data-view-mode="teaser" data-langcode="en" data-entity-embed-display="entity_reference:entity_reference_entity_view" data-entity-embed-display-settings="teaser" class="embedded-entity">');
+    $this->assertSession()->responseNotContains('<drupal-entity data-entity-type="node" data-entity');
+    $this->assertSession()->responseContains($this->node->body->value);
+    $this->assertSession()->responseNotContains($sample_node->body->value);
+    $this->assertSession()->responseNotContains('This placeholder should not be rendered.');
+    $this->assertSession()->responseContains('<div data-entity-type="node" data-entity-id="' . $sample_node->id() . '" data-entity-uuid="' . $this->node->uuid() . '" data-view-mode="teaser" data-langcode="en" data-entity-embed-display="entity_reference:entity_reference_entity_view" data-entity-embed-display-settings="teaser" class="embedded-entity">');
 
     // Test deprecated 'default' Entity Embed Display plugin.
     $content = '<drupal-entity data-entity-type="node" data-entity-uuid="' . $this->node->uuid() . '" data-entity-embed-display="default" data-entity-embed-display-settings=\'{"view_mode":"teaser"}\'>This placeholder should not be rendered.</drupal-entity>';
@@ -122,9 +124,10 @@ class EntityEmbedFilterTest extends EntityEmbedTestBase {
     $settings['body'] = [['value' => $content, 'format' => 'custom_format']];
     $node = $this->drupalCreateNode($settings);
     $this->drupalGet('node/' . $node->id());
-    $this->assertText($this->node->body->value, 'Embedded node exists in page.');
-    $this->assertNoText(strip_tags($content), 'Placeholder does not appear in the output when embed is successful.');
-    $this->assertRaw('<div data-entity-type="node" data-entity-uuid="' . $this->node->uuid() . '" data-entity-embed-display="entity_reference:entity_reference_entity_view" data-entity-embed-display-settings="teaser" data-langcode="en" class="embedded-entity">');
+    // Verify that the embedded node exists in page.
+    $this->assertSession()->responseContains($this->node->body->value);
+    $this->assertSession()->responseNotContains('This placeholder should not be rendered.');
+    $this->assertSession()->responseContains('<div data-entity-type="node" data-entity-uuid="' . $this->node->uuid() . '" data-entity-embed-display="entity_reference:entity_reference_entity_view" data-entity-embed-display-settings="teaser" data-langcode="en" class="embedded-entity">');
 
     // Ensure that Entity Embed Display plugin is preferred over view mode when
     // both attributes are present.
@@ -135,15 +138,17 @@ class EntityEmbedFilterTest extends EntityEmbedTestBase {
     $settings['body'] = [['value' => $content, 'format' => 'custom_format']];
     $node = $this->drupalCreateNode($settings);
     $this->drupalGet('node/' . $node->id());
-    $this->assertText($this->node->body->value, 'Embedded node exists in page with the view mode specified by entity-embed-settings.');
-    $this->assertNoText(strip_tags($content), 'Placeholder does not appear in the output when embed is successful.');
+    // Verify embedded node exists in page with the view mode specified
+    // by entity-embed-settings.
+    $this->assertSession()->responseContains($this->node->body->value);
+    $this->assertSession()->responseNotContains('This placeholder should not be rendered.');
     $this->assertSession()->elementExists('css', 'figure.caption-drupal-entity.align-left div.embedded-entity[data-entity-embed-display="entity_reference:entity_reference_entity_view"][data-entity-embed-display-settings="full"][data-entity-type="node"][data-entity-uuid="' . $this->node->uuid() . '"][data-view-mode="some-invalid-view-mode"][data-langcode="en"]');
     $this->assertSession()->elementTextContains('css', 'figure.caption-drupal-entity.align-left figcaption', 'test caption');
 
     // Ensure the embedded node doesn't contain data tags on the full page.
     $this->drupalGet('node/' . $this->node->id());
-    $this->assertNoRaw('data-align="left"', 'Align data attribute not found.');
-    $this->assertNoRaw('data-caption="test caption"', 'Caption data attribute not found.');
+    $this->assertSession()->responseNotContains('data-align="left"');
+    $this->assertSession()->responseNotContains('data-caption="test caption"');
 
     // Test that tag of container element is not replaced when it's not
     // <drupal-entity>.
@@ -154,8 +159,8 @@ class EntityEmbedFilterTest extends EntityEmbedTestBase {
     $settings['body'] = [['value' => $content, 'format' => 'custom_format']];
     $node = $this->drupalCreateNode($settings);
     $this->drupalget('node/' . $node->id());
-    $this->assertNoText($this->node->body->value, 'embedded node exists in page');
-    $this->assertRaw('</not-drupal-entity>');
+    $this->assertSession()->responseNotContains($this->node->body->value);
+    $this->assertSession()->responseContains('</not-drupal-entity>');
     $content = '<div data-entity-type="node" data-entity-id="' . $this->node->id() . '" data-view-mode="teaser">this placeholder should not be rendered.</div>';
     $settings = [];
     $settings['type'] = 'page';
@@ -163,8 +168,8 @@ class EntityEmbedFilterTest extends EntityEmbedTestBase {
     $settings['body'] = [['value' => $content, 'format' => 'custom_format']];
     $node = $this->drupalCreateNode($settings);
     $this->drupalget('node/' . $node->id());
-    $this->assertNoText($this->node->body->value, 'embedded node exists in page');
-    $this->assertRaw('<div data-entity-type="node" data-entity-id');
+    $this->assertSession()->responseNotContains($this->node->body->value);
+    $this->assertSession()->responseContains('<div data-entity-type="node" data-entity-id');
 
     // Test that attributes are correctly added when image formatter is used.
     /** @var \Drupal\file\FileInterface $image */
@@ -203,7 +208,7 @@ class EntityEmbedFilterTest extends EntityEmbedTestBase {
     $settings['body'] = [['value' => $content, 'format' => 'custom_format']];
     $node = $this->drupalCreateNode($settings);
     $this->drupalGet('node/' . $node->id());
-    $this->assertRaw('<div data-foo="bar" foo="bar" data-entity-type="node" data-entity-uuid="' . $this->node->uuid() . '" data-view-mode="teaser" data-langcode="en" data-entity-embed-display="entity_reference:entity_reference_entity_view" data-entity-embed-display-settings="teaser" class="embedded-entity">');
+    $this->assertSession()->responseContains('<div data-foo="bar" foo="bar" data-entity-type="node" data-entity-uuid="' . $this->node->uuid() . '" data-view-mode="teaser" data-langcode="en" data-entity-embed-display="entity_reference:entity_reference_entity_view" data-entity-embed-display-settings="teaser" class="embedded-entity">');
 
     // Tests the placeholder for missing entities.
     $embedded_node = $this->drupalCreateNode([

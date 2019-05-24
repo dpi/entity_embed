@@ -25,18 +25,25 @@ class EntityEmbedDialogTest extends EntityEmbedTestBase {
     // Ensure that the route is not accessible without specifying all the
     // parameters.
     $this->getEmbedDialog();
-    $this->assertResponse(404, 'Embed dialog is not accessible without specifying filter format and embed button.');
+    // Verify embed dialog is not accessible without specifying filter format
+    // and embed button.
+    $this->assertSession()->statusCodeEquals(404);
     $this->getEmbedDialog('custom_format');
-    $this->assertResponse(404, 'Embed dialog is not accessible without specifying embed button.');
+    // Verify embed dialog is not accessible without specifying embed button.
+    $this->assertSession()->statusCodeEquals(404);
 
     // Ensure that the route is not accessible with an invalid embed button.
     $this->getEmbedDialog('custom_format', 'invalid_button');
-    $this->assertResponse(404, 'Embed dialog is not accessible without specifying filter format and embed button.');
+    // Verify embed dialog is not accessible without specifying filter format
+    // and embed button.
+    $this->assertSession()->statusCodeEquals(404);
 
     // Ensure that the route is not accessible with text format without the
     // button configured.
     $this->getEmbedDialog('plain_text', 'node');
-    $this->assertResponse(404, 'Embed dialog is not accessible with a filter that does not have an editor configuration.');
+    // Verify embed dialog is not accessible with a filter that does not have
+    // an editor configuration.
+    $this->assertSession()->statusCodeEquals(404);
 
     // Add an empty configuration for the plain_text editor configuration.
     $editor = Editor::create([
@@ -45,16 +52,20 @@ class EntityEmbedDialogTest extends EntityEmbedTestBase {
     ]);
     $editor->save();
     $this->getEmbedDialog('plain_text', 'node');
-    $this->assertResponse(403, 'Embed dialog is not accessible with a filter that does not have the embed button assigned to it.');
+    // Verify embed dialog is not accessible with a filter that does not have
+    // the embed button assigned to it.
+    $this->assertSession()->statusCodeEquals(403);
 
     // Ensure that the route is accessible with a valid embed button.
     // 'Node' embed button is provided by default by the module and hence the
     // request must be successful.
     $this->getEmbedDialog('custom_format', 'node');
-    $this->assertResponse(200, 'Embed dialog is accessible with correct filter format and embed button.');
+    // Verify embed dialog is accessible with correct filter format
+    // and embed button.
+    $this->assertSession()->statusCodeEquals(200);
 
     // Ensure form structure of the 'select' step and submit form.
-    $this->assertFieldByName('entity_id', '', 'Entity ID/UUID field is present.');
+    $this->assertSession()->fieldExists('entity_id');
   }
 
   /**
@@ -64,7 +75,9 @@ class EntityEmbedDialogTest extends EntityEmbedTestBase {
     // Ensure that the route is not accessible with text format without the
     // button configured.
     $this->getEmbedDialog('plain_text', 'node');
-    $this->assertResponse(404, 'Embed dialog is not accessible with a filter that does not have an editor configuration.');
+    // Verify embed dialog is not accessible with a filter that does not have
+    // an editor configuration.
+    $this->assertSession()->statusCodeEquals(404);
 
     // Add an empty configuration for the plain_text editor configuration.
     $editor = Editor::create([
@@ -73,19 +86,23 @@ class EntityEmbedDialogTest extends EntityEmbedTestBase {
     ]);
     $editor->save();
     $this->getEmbedDialog('plain_text', 'node');
-    $this->assertResponse(403, 'Embed dialog is not accessible with a filter that does not have the embed button assigned to it.');
+    // Verify embed dialog is not accessible with a filter that does not have
+    // the embed button assigned to it.
+    $this->assertSession()->statusCodeEquals(403);
 
     // Ensure that the route is accessible with a valid embed button.
     // 'Node' embed button is provided by default by the module and hence the
     // request must be successful.
     $this->getEmbedDialog('custom_format', 'node');
-    $this->assertResponse(200, 'Embed dialog is accessible with correct filter format and embed button.');
+    // Verify embed dialog is accessible with correct filter format
+    // and embed button.
+    $this->assertSession()->statusCodeEquals(200);
 
     // Ensure form structure of the 'select' step and submit form.
-    $this->assertFieldByName('entity_id', '', 'Entity ID/UUID field is present.');
+    $this->assertSession()->fieldExists('entity_id');
 
     // Check that 'Next' is a primary button.
-    $this->assertFieldByXPath('//input[contains(@class, "button--primary")]', 'Next', 'Next is a primary button');
+    $this->assertSession()->elementExists('xpath', '//input[contains(@class, "button--primary")]');
   }
 
   /**
@@ -99,7 +116,7 @@ class EntityEmbedDialogTest extends EntityEmbedTestBase {
     $this->drupalPostForm(NULL, $edit, t('Next'));
     // Tests that the embed dialog doesn't trow a fatal in
     // ImageFieldFormatter::isValidImage()
-    $this->assertResponse(200);
+    $this->assertSession()->statusCodeEquals(200);
   }
 
   /**

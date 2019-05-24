@@ -27,10 +27,10 @@ class EntityEmbedDialogTest extends EntityEmbedTestBase {
     $this->getEmbedDialog('custom_format', 'node');
 
     // Ensure form structure of the 'select' step and submit form.
-    $this->assertFieldByName('entity_id', '', 'Entity ID/UUID field is present.');
+    $this->assertSession()->fieldExists('entity_id');
 
     // Check that 'Next' is a primary button.
-    $this->assertFieldByXPath('//input[contains(@class, "button--primary")]', 'Next', 'Next is a primary button');
+    $this->assertSession()->elementExists('xpath', '//input[contains(@class, "button--primary")]');
 
     $title = $this->node->getTitle() . ' (' . $this->node->id() . ')';
     $this->assertSession()->fieldExists('entity_id')->setValue($title);

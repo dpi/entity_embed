@@ -374,14 +374,24 @@ class EntityEmbedDialog extends FormBase {
 
     $form['#title'] = $this->t('Embed @type', ['@type' => $entity->getEntityType()->getLowercaseLabel()]);
 
-    $entity_label = '';
     try {
-      $entity_label = $entity->link();
+      if ($entity->getEntityType()->hasLinkTemplate('canonical')) {
+        $options = [
+          'attributes' => [
+            'target' => '_blank',
+          ],
+        ];
+        $entity_label = $entity->toLink($entity->label(), 'canonical', $options)->toString();
+      }
+      elseif ($entity->getEntityTypeId() == 'file') {
+        $entity_label = '<a href="' . file_create_url($entity->getFileUri()) . '" target="_blank">' . $entity->label() . '</a>';
+      }
+      else {
+        $entity_label = '<a href="' . $entity->toUrl()->toString() . '" target="_blank">' . $entity->label() . '</a>';
+      }
     }
     catch (\Exception $e) {
-      // Construct markup of the link to the entity manually if link() fails.
-      // @see https://www.drupal.org/node/2402533
-      $entity_label = '<a href="' . $entity->url() . '">' . $entity->label() . '</a>';
+      $entity_label = $entity->label();
     }
 
     $form['entity'] = [
