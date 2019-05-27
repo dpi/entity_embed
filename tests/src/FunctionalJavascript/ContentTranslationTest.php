@@ -43,6 +43,15 @@ class ContentTranslationTest extends EntityEmbedTestBase {
       ->save();
   }
 
+  /**
+   * Return autocomplete suggestions from the entity_id field.
+   *
+   * @param string $search_string
+   *   The search string.
+   *
+   * @return string
+   *   The text of the autocomplete suggestions.
+   */
   protected function getAutocompleteSuggestions($search_string) {
     $this->assertSession()
       ->fieldExists('entity_id')

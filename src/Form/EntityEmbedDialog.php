@@ -2,7 +2,6 @@
 
 namespace Drupal\entity_embed\Form;
 
-use Drupal\Component\Assertion\Inspector;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\CloseModalDialogCommand;
@@ -293,7 +292,7 @@ class EntityEmbedDialog extends FormBase {
     if (!empty($entity_element['data-langcode'])) {
       $form['attributes']['data-langcode'] = [
         '#type' => 'hidden',
-        '#value' => $entity_element['data-langcode']
+        '#value' => $entity_element['data-langcode'],
       ];
     }
 
@@ -443,7 +442,7 @@ class EntityEmbedDialog extends FormBase {
     if (!empty($entity_element['data-langcode'])) {
       $form['attributes']['data-langcode'] = [
         '#type' => 'hidden',
-        '#value' => $entity_element['data-langcode']
+        '#value' => $entity_element['data-langcode'],
       ];
     }
 
